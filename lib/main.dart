@@ -11,7 +11,7 @@ import 'data/binding/App_binding.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init(); // 🔥 storage init
+  await GetStorage.init();
 
   runApp(MyApp());
 }

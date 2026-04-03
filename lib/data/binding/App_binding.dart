@@ -6,13 +6,12 @@ class AppBinding extends Bindings {
   @override
   void dependencies() {
 
-    /// 🔥 NAVIGATION CONTROLLER (GLOBAL)
+
     Get.put<AppVM>(
       AppVM(),
       permanent: true,
     );
 
-    /// 💰 HOME / TRANSACTION CONTROLLER
     Get.put<HomeVM>(
       HomeVM(),
       permanent: true,
