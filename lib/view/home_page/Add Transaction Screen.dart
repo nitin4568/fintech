@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../view_models/controller/TransactionController.dart';
 import '../../view_models/controller/home_controller/home_controller.dart';
 import '../../models/home_models/TransactionModel.dart';
+import 'MAIN screen home.dart';
 
 class AddTransactionScreen extends StatelessWidget {
   final HomeVM vm = Get.find();
@@ -335,7 +336,7 @@ class AddTransactionScreen extends StatelessWidget {
                       textConfirm: "OK",
                       confirmTextColor: Colors.white,
                       onConfirm: () {
-                        Get.offAllNamed("/home");
+                        Get.offAll(() => MainScreen());
                       },
                     );
                   },

@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(375, 812), // 🔥 base design (iPhone X)
+      designSize: const Size(375, 812),
       minTextAdapt: true,
       splitScreenMode: true,
 
@@ -32,16 +32,14 @@ class MyApp extends StatelessWidget {
         return Obx(() => GetMaterialApp(
           debugShowCheckedModeBanner: false,
 
-          /// 🔥 ROUTES
           initialBinding: AppBinding(),
           initialRoute: AppRouteNames.splash,
           getPages: AppRoutes.routes,
 
-          /// 🔥 THEMES
           theme: AppThemes.lightTheme,
           darkTheme: AppThemes.darkTheme,
 
-          /// 🔥 DARK MODE SWITCH
+
           themeMode: themeController.isDark.value
               ? ThemeMode.dark
               : ThemeMode.light,

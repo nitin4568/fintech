@@ -6,6 +6,7 @@ import '../../models/home_models/TransactionModel.dart';
 import '../../view_models/controller/home_controller/home_controller.dart';
 import 'Add Transaction Screen.dart';
 
+import 'MAIN screen home.dart';
 import 'home_Page.dart';
 
 class TransactionDetailScreen extends StatelessWidget {
@@ -62,7 +63,7 @@ class TransactionDetailScreen extends StatelessWidget {
 
                   Get.back();
 
-                  Get.offAll(() => HomeScreen());
+                  Get.offAll(() => MainScreen());
                 },
               );
             },
