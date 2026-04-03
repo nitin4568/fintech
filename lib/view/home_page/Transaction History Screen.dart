@@ -1,3 +1,4 @@
+import 'package:bankapp/view/home_page/tdetail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,6 +7,8 @@ import 'Add Transaction Screen.dart';
 
 class TransactionScreen extends StatelessWidget {
   final HomeVM vm = Get.find();
+  final RxString selectedFilter = "All".obs;
+  final RxString searchQuery = "".obs;
 
   TransactionScreen({super.key});
 
@@ -38,12 +41,14 @@ class TransactionScreen extends StatelessWidget {
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20.r),
               ),
-              child: TextField(
+              child:TextField(
+                onChanged: (value) {
+                  searchQuery.value = value.toLowerCase();
+                },
                 style: TextStyle(color: textColor),
                 decoration: InputDecoration(
                   hintText: "Search transactions...",
-                  hintStyle:
-                  TextStyle(color: textColor.withOpacity(0.5)),
+                  hintStyle: TextStyle(color: textColor.withOpacity(0.5)),
                   border: InputBorder.none,
                   icon: Icon(Icons.search, color: textColor),
                 ),
@@ -52,72 +57,61 @@ class TransactionScreen extends StatelessWidget {
 
             SizedBox(height: 12.h),
 
-            Row(
+            Obx(() => Row(
               children: [
-                _chip(context, "All", true),
+                _chip(context, "All"),
                 SizedBox(width: 8.w),
-                _chip(context, "Income", false),
+                _chip(context, "Income"),
                 SizedBox(width: 8.w),
-                _chip(context, "Expenses", false),
+                _chip(context, "Expenses"),
               ],
-            ),
+            )),
 
             SizedBox(height: 16.h),
-
-            Container(
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: const Color(0xFF3B82F6).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(18.r),
-              ),
-              child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-                      Text("MONTHLY TREND",
-                          style: TextStyle(
-                              fontSize: 12.sp,
-                              color: const Color(0xFF3B82F6))),
-                      SizedBox(height: 5.h),
-                      Text("Spends are down by 12%",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                              fontSize: 13.sp)),
-                    ],
-                  ),
-                  const Icon(Icons.show_chart,
-                      color: Color(0xFF3B82F6))
-                ],
-              ),
-            ),
-
-            SizedBox(height: 16.h),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "RECENT TRANSACTIONS",
-                style: TextStyle(
-                    color: textColor.withOpacity(0.6),
-                    fontSize: 12.sp),
-              ),
-            ),
-
-            SizedBox(height: 10.h),
 
             Expanded(
-              child: Obx(() => ListView.builder(
-                itemCount: vm.transactions.length,
-                itemBuilder: (context, index) {
-                  final tx = vm.transactions[index];
-                  return _transactionTile(context, tx);
-                },
-              )),
+              child: Obx(() {
+
+                List filtered = vm.transactions;
+
+                if (selectedFilter.value == "Income") {
+                  filtered = vm.transactions.where((e) => e.isIncome).toList();
+                } else if (selectedFilter.value == "Expenses") {
+                  filtered = vm.transactions.where((e) => !e.isIncome).toList();
+                }
+
+                if (searchQuery.value.isNotEmpty) {
+                  filtered = filtered.where((tx) {
+                    return tx.title.toLowerCase().contains(searchQuery.value) ||
+                        tx.category.toLowerCase().contains(searchQuery.value) ||
+                        tx.amount.toString().contains(searchQuery.value);
+                  }).toList();
+                }
+
+                if (selectedFilter.value == "Expenses") {
+                  filtered.sort((a, b) =>
+                      b.amount.abs().compareTo(a.amount.abs()));
+                }
+
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Text(
+                      "No Transactions Yet",
+                      style: TextStyle(
+                        color: textColor.withOpacity(0.6),
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final tx = filtered[index];
+                    return _transactionTile(context, tx);
+                  },
+                );
+              }),
             ),
           ],
         ),
@@ -134,24 +128,29 @@ class TransactionScreen extends StatelessWidget {
     );
   }
 
-  Widget _chip(BuildContext context, String text, bool selected) {
+  Widget _chip(BuildContext context, String text) {
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
-    return Container(
-      padding:
-      EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-      decoration: BoxDecoration(
-        color: selected
-            ? const Color(0xFF3B82F6)
-            : Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20.r),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: selected ? Colors.white : textColor,
-          fontSize: 12.sp,
+    return GestureDetector(
+      onTap: () => selectedFilter.value = text,
+      child: Container(
+        padding:
+        EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: selectedFilter.value == text
+              ? const Color(0xFF3B82F6)
+              : Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(20.r),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: selectedFilter.value == text
+                ? Colors.white
+                : textColor,
+            fontSize: 12.sp,
+          ),
         ),
       ),
     );
@@ -161,52 +160,58 @@ class TransactionScreen extends StatelessWidget {
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
-    return Container(
-      margin: EdgeInsets.only(bottom: 10.h),
-      padding: EdgeInsets.all(12.w),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(16.r),
-      ),
-      child: Row(
-        children: [
+    return InkWell(
+      borderRadius: BorderRadius.circular(16.r),
+      onTap: () {
+        Get.to(() => TransactionDetailScreen(tx: tx));
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10.h),
+        padding: EdgeInsets.all(12.w),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16.r),
+        ),
+        child: Row(
+          children: [
 
-          CircleAvatar(
-            backgroundColor:
-            const Color(0xFF3B82F6).withOpacity(0.15),
-            child: const Icon(Icons.shopping_bag,
-                color: Color(0xFF3B82F6)),
-          ),
-
-          SizedBox(width: 10.w),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                Text(tx.title,
-                    style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: textColor,
-                        fontSize: 14.sp)),
-                Text(tx.category,
-                    style: TextStyle(
-                        color: textColor.withOpacity(0.6),
-                        fontSize: 12.sp)),
-              ],
+            CircleAvatar(
+              backgroundColor:
+              const Color(0xFF3B82F6).withOpacity(0.15),
+              child: const Icon(Icons.shopping_bag,
+                  color: Color(0xFF3B82F6)),
             ),
-          ),
 
-          Text(
-            "${tx.isIncome ? "+" : "-"}₹${tx.amount.abs()}",
-            style: TextStyle(
-              color: tx.isIncome ? Colors.green : Colors.red,
-              fontWeight: FontWeight.bold,
-              fontSize: 13.sp,
+            SizedBox(width: 10.w),
+
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                CrossAxisAlignment.start,
+                children: [
+                  Text(tx.title,
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                          fontSize: 14.sp)),
+                  Text(tx.category,
+                      style: TextStyle(
+                          color: textColor.withOpacity(0.6),
+                          fontSize: 12.sp)),
+                ],
+              ),
             ),
-          )
-        ],
+
+            Text(
+              "${tx.isIncome ? "+" : "-"}₹${tx.amount.abs()}",
+              style: TextStyle(
+                color: tx.isIncome ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 13.sp,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

@@ -17,7 +17,8 @@ class TransactionTile extends StatelessWidget {
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
-    return GestureDetector(
+    return InkWell(
+      borderRadius: BorderRadius.circular(14.r),
       onTap: () {
         Get.to(() => TransactionDetailScreen(tx: tx));
       },

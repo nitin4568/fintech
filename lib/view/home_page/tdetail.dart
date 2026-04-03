@@ -1,12 +1,19 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import '../../models/home_models/TransactionModel.dart';
+import '../../view_models/controller/home_controller/home_controller.dart';
+import 'Add Transaction Screen.dart';
+
+import 'home_Page.dart';
 
 class TransactionDetailScreen extends StatelessWidget {
   final TransactionModel tx;
 
-  const TransactionDetailScreen({super.key, required this.tx});
+  TransactionDetailScreen({super.key, required this.tx});
+
+  final vm = Get.find<HomeVM>();
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +31,43 @@ class TransactionDetailScreen extends StatelessWidget {
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         foregroundColor: textColor,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit, color: textColor),
+            onPressed: () {
+              Get.to(() => AddTransactionScreen(), arguments: tx);
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              Get.defaultDialog(
+                title: "Delete",
+                middleText: "Are you sure you want to delete?",
+                textConfirm: "Yes",
+                textCancel: "No",
+                confirmTextColor: Colors.white,
+                onConfirm: () async {
+
+                  Get.back();
+
+                  Get.dialog(
+                    const Center(child: CircularProgressIndicator()),
+                    barrierDismissible: false,
+                  );
+
+                  await Future.delayed(const Duration(milliseconds: 500));
+
+                  vm.deleteTransaction(tx);
+
+                  Get.back();
+
+                  Get.offAll(() => HomeScreen());
+                },
+              );
+            },
+          ),
+        ],
       ),
 
       body: SingleChildScrollView(

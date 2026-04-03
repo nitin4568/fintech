@@ -18,7 +18,8 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyLarge!.color;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -46,89 +47,107 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
 
-      body: Obx(() => ListView(
-        padding: EdgeInsets.all(16.w),
-        children: [
+      body: Obx(() {
 
-          BalanceCard(balance: vm.balance.value),
 
-          SizedBox(height: 20.h),
+        if (vm.isLoading != null && vm.isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-          Row(
-            children: [
-              Expanded(
-                child: InfoCard(
-                  title: "Income",
-                  amount: vm.income.value,
-                  isIncome: true,
-                ),
-              ),
-              SizedBox(width: 10.w),
-              Expanded(
-                child: InfoCard(
-                  title: "Expense",
-                  amount: vm.expense.value,
-                  isIncome: false,
-                ),
-              ),
-            ],
-          ),
+        return ListView(
+          padding: EdgeInsets.all(16.w),
+          children: [
 
-          SizedBox(height: 20.h),
+            BalanceCard(balance: vm.balance.value),
 
-          GoalProgress(progress: vm.getProgress()),
+            SizedBox(height: 20.h),
 
-          SizedBox(height: 20.h),
-
-          MonthlySpending(),
-
-          SizedBox(height: 20.h),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Recent Activity",
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  Get.to(() => TransactionScreen());
-                },
-                child: Text(
-                  "View All",
-                  style: TextStyle(
-                    color: const Color(0xFF3B82F6),
-                    fontSize: 14.sp,
+            Row(
+              children: [
+                Expanded(
+                  child: InfoCard(
+                    title: "Income",
+                    amount: vm.income.value,
+                    isIncome: true,
                   ),
                 ),
-              )
-            ],
-          ),
-
-          SizedBox(height: 10.h),
-
-          vm.transactions.isEmpty
-              ? Center(
-            child: Text(
-              "No transactions yet",
-              style: TextStyle(
-                color: textColor!.withOpacity(0.6),
-                fontSize: 14.sp,
-              ),
+                SizedBox(width: 10.w),
+                Expanded(
+                  child: InfoCard(
+                    title: "Expense",
+                    amount: vm.expense.value,
+                    isIncome: false,
+                  ),
+                ),
+              ],
             ),
-          )
-              : Column(
-            children: vm.transactions
-                .map((tx) => TransactionTile(tx: tx))
-                .toList(),
-          ),
-        ],
-      )),
+
+            SizedBox(height: 20.h),
+
+            GoalProgress(progress: vm.getProgress()),
+
+            SizedBox(height: 20.h),
+
+            MonthlySpending(),
+
+            SizedBox(height: 20.h),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Recent Activity",
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    Get.to(() => TransactionScreen());
+                  },
+                  child: Text(
+                    "View All",
+                    style: TextStyle(
+                      color: const Color(0xFF3B82F6),
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                )
+              ],
+            ),
+
+            SizedBox(height: 10.h),
+
+            /// 🔥 EMPTY STATE (IMPROVED)
+            vm.transactions.isEmpty
+                ? Center(
+              child: Column(
+                children: [
+                  SizedBox(height: 20.h),
+                  Icon(Icons.inbox,
+                      size: 50.sp,
+                      color: textColor.withOpacity(0.5)),
+                  SizedBox(height: 10.h),
+                  Text(
+                    "No Transactions Yet",
+                    style: TextStyle(
+                      color: textColor.withOpacity(0.6),
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ],
+              ),
+            )
+                : Column(
+              children: vm.transactions
+                  .map((tx) => TransactionTile(tx: tx))
+                  .toList(),
+            ),
+          ],
+        );
+      }),
 
       floatingActionButton: Padding(
         padding: EdgeInsets.only(bottom: 10.h),

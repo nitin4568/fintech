@@ -10,11 +10,11 @@ class BalanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = Theme.of(context).textTheme.bodyLarge!.color;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
     return GestureDetector(
       onTap: () => _showAddBalanceDialog(context),
-
       child: Container(
         padding: EdgeInsets.all(16.w),
         decoration: BoxDecoration(
@@ -30,21 +30,18 @@ class BalanceCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-
             Positioned(
               right: -10.w,
               top: -10.h,
               child: Icon(
                 Icons.show_chart,
                 size: 100.sp,
-                color: textColor!.withOpacity(0.05),
+                color: textColor.withOpacity(0.05),
               ),
             ),
-
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   "Total Net Worth",
                   style: TextStyle(
@@ -52,9 +49,7 @@ class BalanceCard extends StatelessWidget {
                     fontSize: 14.sp,
                   ),
                 ),
-
                 SizedBox(height: 5.h),
-
                 Text(
                   "₹${balance.toStringAsFixed(0)}",
                   style: TextStyle(
@@ -73,14 +68,15 @@ class BalanceCard extends StatelessWidget {
 
   void _showAddBalanceDialog(BuildContext context) {
     final vm = Get.find<HomeVM>();
-    final textColor = Theme.of(context).textTheme.bodyLarge!.color;
+    final textColor =
+        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+
     TextEditingController controller = TextEditingController();
 
     Get.defaultDialog(
       title: "Add Net Worth",
       titleStyle: TextStyle(color: textColor, fontSize: 16.sp),
       backgroundColor: Theme.of(context).cardColor,
-
       content: Column(
         children: [
           TextField(
@@ -89,32 +85,48 @@ class BalanceCard extends StatelessWidget {
             style: TextStyle(color: textColor),
             decoration: InputDecoration(
               hintText: "Enter amount",
-              hintStyle: TextStyle(
-                color: textColor!.withOpacity(0.5),
-              ),
+              hintStyle:
+              TextStyle(color: textColor.withOpacity(0.5)),
               enabledBorder: UnderlineInputBorder(
                 borderSide:
                 BorderSide(color: textColor.withOpacity(0.3)),
               ),
               focusedBorder: UnderlineInputBorder(
-                borderSide:
-                BorderSide(color: textColor),
+                borderSide: BorderSide(color: textColor),
               ),
             ),
           ),
         ],
       ),
-
       textConfirm: "Save",
       textCancel: "Cancel",
-
       confirmTextColor: Colors.white,
       buttonColor: const Color(0xFF3B82F6),
-
-      onConfirm: () {
+      onConfirm: () async {
         double value = double.tryParse(controller.text) ?? 0;
+
+        if (value <= 0) {
+          Get.snackbar(
+            "Error",
+            "Enter valid amount",
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.red.withOpacity(0.1),
+          );
+          return;
+        }
+
+        Get.back();
+
+        Get.dialog(
+          const Center(child: CircularProgressIndicator()),
+          barrierDismissible: false,
+        );
+
+        await Future.delayed(const Duration(milliseconds: 500));
+
         vm.saveManualBalance(value);
         vm.calculateTotals();
+
         Get.back();
       },
     );

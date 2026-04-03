@@ -13,6 +13,7 @@ class AddTransactionScreen extends StatelessWidget {
 
   final TextEditingController amountController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
+  final TransactionModel? editTx = Get.arguments;
 
   AddTransactionScreen({super.key});
 
@@ -21,25 +22,30 @@ class AddTransactionScreen extends StatelessWidget {
     final textColor =
         Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
 
+    if (editTx != null) {
+      amountController.text = editTx!.amount.toString();
+      noteController.text = editTx!.note ?? "";
+      addVM.selectedCategory.value = editTx!.category;
+      addVM.isIncome.value = editTx!.isIncome;
+      addVM.imagePath.value = editTx!.imagePath ?? "";
+    }
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.transparent,
         title: Text(
-          "Add Transaction",
+          editTx != null ? "Edit Transaction" : "Add Transaction",
           style: TextStyle(color: textColor, fontSize: 18.sp),
         ),
         iconTheme: IconThemeData(color: textColor),
       ),
-
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(16.w),
           child: Column(
             children: [
-
               Column(
                 children: [
                   Text("ENTER AMOUNT",
@@ -47,7 +53,6 @@ class AddTransactionScreen extends StatelessWidget {
                           color: textColor.withOpacity(0.6),
                           fontSize: 12.sp)),
                   SizedBox(height: 10.h),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -74,85 +79,88 @@ class AddTransactionScreen extends StatelessWidget {
                   ),
                 ],
               ),
-
               SizedBox(height: 20.h),
-
-          Obx(() => Container(
-            padding: EdgeInsets.all(4.w),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(25.r),
-            ),
-            child: Row(
-              children: [
-
-                /// 🔻 EXPENSE
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => addVM.isIncome.value = false,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      decoration: BoxDecoration(
-                        color: !addVM.isIncome.value
-                            ? const Color(0xFF3B82F6).withOpacity(0.15)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Expense",
-                          style: TextStyle(
+              Obx(() => Container(
+                padding: EdgeInsets.all(4.w),
+                decoration: BoxDecoration(
+                  color:
+                  Theme.of(context).cardColor.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(25.r),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () =>
+                        addVM.isIncome.value = false,
+                        child: AnimatedContainer(
+                          duration:
+                          const Duration(milliseconds: 200),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10.h),
+                          decoration: BoxDecoration(
                             color: !addVM.isIncome.value
                                 ? const Color(0xFF3B82F6)
-                                : Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .color,
-                            fontWeight: FontWeight.w600,
+                                .withOpacity(0.15)
+                                : Colors.transparent,
+                            borderRadius:
+                            BorderRadius.circular(20.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Expense",
+                              style: TextStyle(
+                                color: !addVM.isIncome.value
+                                    ? const Color(0xFF3B82F6)
+                                    : Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .color,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-
-                /// 🔺 INCOME
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => addVM.isIncome.value = true,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.symmetric(vertical: 10.h),
-                      decoration: BoxDecoration(
-                        color: addVM.isIncome.value
-                            ? const Color(0xFF3B82F6).withOpacity(0.15)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(20.r),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Income",
-                          style: TextStyle(
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () =>
+                        addVM.isIncome.value = true,
+                        child: AnimatedContainer(
+                          duration:
+                          const Duration(milliseconds: 200),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10.h),
+                          decoration: BoxDecoration(
                             color: addVM.isIncome.value
                                 ? const Color(0xFF3B82F6)
-                                : Theme.of(context)
-                                .textTheme
-                                .bodyLarge!
-                                .color,
-                            fontWeight: FontWeight.w600,
+                                .withOpacity(0.15)
+                                : Colors.transparent,
+                            borderRadius:
+                            BorderRadius.circular(20.r),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "Income",
+                              style: TextStyle(
+                                color: addVM.isIncome.value
+                                    ? const Color(0xFF3B82F6)
+                                    : Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge!
+                                    .color,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-          )),
-
+              )),
               SizedBox(height: 20.h),
-
               Row(
                 mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
@@ -168,24 +176,24 @@ class AddTransactionScreen extends StatelessWidget {
                           fontSize: 13.sp)),
                 ],
               ),
-
               SizedBox(height: 10.h),
-
               Wrap(
                 spacing: 10.w,
                 runSpacing: 10.h,
                 children: [
                   _category(context, "Food", Icons.restaurant),
-                  _category(context, "Travel", Icons.directions_car),
-                  _category(context, "Shop", Icons.shopping_bag),
-                  _category(context, "Fun", Icons.celebration),
+                  _category(context, "Travel",
+                      Icons.directions_car),
+                  _category(context, "Shop",
+                      Icons.shopping_bag),
+                  _category(context, "Fun",
+                      Icons.celebration),
                   _category(context, "Bills", Icons.receipt),
-                  _category(context, "Health", Icons.medical_services),
+                  _category(context, "Health",
+                      Icons.medical_services),
                 ],
               ),
-
               SizedBox(height: 20.h),
-
               Container(
                 padding: EdgeInsets.all(14.w),
                 decoration: BoxDecoration(
@@ -203,9 +211,7 @@ class AddTransactionScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               SizedBox(height: 10.h),
-
               GestureDetector(
                 onTap: () => addVM.pickImage(),
                 child: Container(
@@ -213,10 +219,12 @@ class AddTransactionScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border.all(
                         color: textColor.withOpacity(0.2)),
-                    borderRadius: BorderRadius.circular(14.r),
+                    borderRadius:
+                    BorderRadius.circular(14.r),
                     color: Theme.of(context).cardColor,
                   ),
-                  child: Obx(() => addVM.imagePath.value.isEmpty
+                  child: Obx(() =>
+                  addVM.imagePath.value.isEmpty
                       ? Column(
                     mainAxisAlignment:
                     MainAxisAlignment.center,
@@ -239,44 +247,103 @@ class AddTransactionScreen extends StatelessWidget {
                   )),
                 ),
               ),
-
               SizedBox(height: 50.h),
-
               SizedBox(
                 width: double.infinity,
-                child:ElevatedButton(
+                child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF3B82F6), // 🔵 Blue
-                    foregroundColor: Colors.white, // 🔥 IMPORTANT (text white)
-                    padding: EdgeInsets.symmetric(vertical: 14.h),
+                    backgroundColor:
+                    const Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                    padding:
+                    EdgeInsets.symmetric(vertical: 14.h),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.r),
+                      borderRadius:
+                      BorderRadius.circular(30.r),
                     ),
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     double amount =
-                        double.tryParse(amountController.text) ?? 0;
+                        double.tryParse(
+                            amountController.text) ??
+                            0;
 
-                    vm.addTransaction(
-                      TransactionModel(
-                        title: noteController.text.isEmpty
-                            ? "General"
-                            : noteController.text,
-                        category: addVM.selectedCategory.value,
-                        amount: amount,
-                        isIncome: addVM.isIncome.value,
-                        note: noteController.text,
-                        imagePath: addVM.imagePath.value,
-                      ),
+                    if (amount <= 0) {
+                      Get.snackbar(
+                        "Error",
+                        "Please enter valid amount",
+                        snackPosition:
+                        SnackPosition.BOTTOM,
+                      );
+                      return;
+                    }
+
+                    Get.dialog(
+                      const Center(
+                          child:
+                          CircularProgressIndicator()),
+                      barrierDismissible: false,
                     );
 
+                    await Future.delayed(
+                        const Duration(milliseconds: 500));
+
+                    if (editTx != null) {
+                      vm.updateTransaction(
+                        editTx!,
+                        TransactionModel(
+                          title: noteController
+                              .text.isEmpty
+                              ? "General"
+                              : noteController.text,
+                          category: addVM
+                              .selectedCategory.value,
+                          amount: amount,
+                          isIncome:
+                          addVM.isIncome.value,
+                          note: noteController.text,
+                          imagePath:
+                          addVM.imagePath.value,
+                        ),
+                      );
+                    } else {
+                      vm.addTransaction(
+                        TransactionModel(
+                          title: noteController
+                              .text.isEmpty
+                              ? "General"
+                              : noteController.text,
+                          category: addVM
+                              .selectedCategory.value,
+                          amount: amount,
+                          isIncome:
+                          addVM.isIncome.value,
+                          note: noteController.text,
+                          imagePath:
+                          addVM.imagePath.value,
+                        ),
+                      );
+                    }
+
                     Get.back();
+
+                    Get.defaultDialog(
+                      title: "Success",
+                      middleText: editTx != null
+                          ? "Transaction updated successfully"
+                          : "Transaction added successfully",
+                      textConfirm: "OK",
+                      confirmTextColor: Colors.white,
+                      onConfirm: () {
+                        Get.offAllNamed("/home");
+                      },
+                    );
                   },
                   child: Text(
                     "SAVE TRANSACTION",
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: Colors.white, // 🔥 Force white
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -293,7 +360,8 @@ class AddTransactionScreen extends StatelessWidget {
       BuildContext context, String name, IconData icon) {
     final addVM = Get.find<AddTransactionVM>();
     final textColor =
-        Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+        Theme.of(context).textTheme.bodyLarge?.color ??
+            Colors.black;
 
     return Obx(() => GestureDetector(
       onTap: () => addVM.selectCategory(name),
@@ -301,12 +369,16 @@ class AddTransactionScreen extends StatelessWidget {
         width: 80.w,
         padding: EdgeInsets.all(12.w),
         decoration: BoxDecoration(
-          color: addVM.selectedCategory.value == name
-              ? const Color(0xFF3B82F6).withOpacity(0.2)
+          color: addVM.selectedCategory.value ==
+              name
+              ? const Color(0xFF3B82F6)
+              .withOpacity(0.2)
               : Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(14.r),
+          borderRadius:
+          BorderRadius.circular(14.r),
           border: Border.all(
-            color: addVM.selectedCategory.value == name
+            color: addVM.selectedCategory.value ==
+                name
                 ? const Color(0xFF3B82F6)
                 : Colors.transparent,
           ),
@@ -314,7 +386,8 @@ class AddTransactionScreen extends StatelessWidget {
         child: Column(
           children: [
             Icon(icon,
-                color: addVM.selectedCategory.value == name
+                color: addVM.selectedCategory.value ==
+                    name
                     ? const Color(0xFF3B82F6)
                     : textColor),
             SizedBox(height: 5.h),
