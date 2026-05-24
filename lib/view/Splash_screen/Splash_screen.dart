@@ -23,6 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(const Duration(seconds: 2));
     Get.offAllNamed(AppRouteNames.main);
   }
+  //splash code
 
   @override
   Widget build(BuildContext context) {
